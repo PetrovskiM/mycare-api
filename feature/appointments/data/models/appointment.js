@@ -1,14 +1,16 @@
 const mongoose = require('mongoose')
 
 const { LocationSchema } = require('./location')
+const AppointmentStatus = require('./appointment-status')
 
 const appointmentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   date: { type: Date, required: true },
   handledBy: { type: String, required: true },
-  estimatedDurationMinutes: { type: Number, required: true },
+  estimatedDurationMinutes: { type: Number, required: false },
   location: { type: LocationSchema, required: false },
-  conclusion: { type: String, required: false }
+  conclusion: { type: String, required: false },
+  status: { type: String, enum: AppointmentStatus, required: true }
 },
 {
   toJSON: {

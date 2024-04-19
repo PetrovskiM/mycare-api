@@ -4,14 +4,15 @@ const Appointment = require('../data/models/appointment')
 const HttpError = require('../../../core/common/http-error')
 
 const createAppointment = async (req, res, next) => {
-  const { name, date, handledBy, location, conclusion } = req.body
+  const { name, date, handledBy, location, conclusion, status } = req.body
   const appointment = new Appointment({
     id: uuidv4(),
     name,
     date,
     handledBy,
     location,
-    conclusion
+    conclusion,
+    status
   })
   try {
     return await appointment.save()
