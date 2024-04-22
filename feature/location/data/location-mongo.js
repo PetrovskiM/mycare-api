@@ -2,6 +2,8 @@ const uuidv4 = require('uuid').v4
 
 const HttpError = require('../../../core/common/http-error')
 const { Location } = require('./model/location-schema')
+const Appointment = require('../../appointments/data/models/appointment-schema')
+const mongoose = require('mongoose')
 
 const createLocation = async (req, res, next) => {
   const { name, address, phone, imageUrl } = req.body
@@ -76,7 +78,12 @@ const deleteLocation = async (req, res, next) => {
   const locationId = req.params.id
   try {
     const filter = { _id: locationId }
-    return await Location.findOneAndDelete(filter)
+    const session = await mongoose.startSession()
+    session.startTransaction()
+    const location = await Location.findOneAndDelete(filter)
+    await Appointment.deleteMany({ locationId })
+    await session.commitTransaction()
+    return location
   } catch (err) {
     const error = new HttpError(
             `Could not update appointment for id: ${locationId}, please try again. Error: ${err}`,

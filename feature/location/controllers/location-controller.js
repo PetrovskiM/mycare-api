@@ -7,7 +7,7 @@ const getLocationById = async (req, res, next) => {
 
   if (!appointment) {
     const appointmentId = req.params.id
-    next(new HttpError(`Could not find an appointment for provided id: ${appointmentId}`, 404))
+    next(new HttpError(`Could not find an location for provided id: ${appointmentId}`, 404))
   } else {
     res.status(201).json(appointment)
   }
@@ -17,7 +17,7 @@ const getLocations = async (req, res, next) => {
   const appointments = await mongo.getLocations(req, res, next)
 
   if (!appointments) {
-    next(new HttpError('Could not fetch appointments.', 404))
+    next(new HttpError('Could not fetch locations.', 404))
   } else {
     res.status(201).json(appointments)
   }
@@ -27,7 +27,7 @@ const createLocation = async (req, res, next) => {
   const appointment = await mongo.createLocation(req, res, next)
 
   if (!appointment) {
-    next(new HttpError('Could not create appointments.', 422))
+    next(new HttpError('Could not create location.', 422))
   } else {
     res.status(201).json(appointment)
   }
@@ -38,7 +38,7 @@ const updateLocation = async (req, res, next) => {
 
   if (!updatedAppointment) {
     const appointmentId = req.params.id
-    next(new HttpError(`Could not update appointment with id: ${appointmentId}.`, 422))
+    next(new HttpError(`Could not update location with id: ${appointmentId}.`, 422))
   } else {
     res.status(200).json(updatedAppointment)
   }
@@ -49,9 +49,9 @@ const deleteLocation = async (req, res, next) => {
 
   if (!deletedAppointment) {
     const appointmentId = req.params.id
-    next(new HttpError(`Could not delete appointment with id: ${appointmentId}`, 422))
+    next(new HttpError(`Could not delete location with id: ${appointmentId}`, 422))
   } else {
-    res.status(200).json({ message: 'Deleted appointment.' })
+    res.status(200).json({ message: 'Location deleted successfully.' })
   }
 }
 
