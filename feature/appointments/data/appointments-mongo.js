@@ -1,20 +1,18 @@
-const uuidv4 = require('uuid').v4
-
 const Appointment = require('./models/appointment-schema')
 const HttpError = require('../../../core/common/http-error')
 const { Location } = require('../../location/data/model/location-schema')
 const AppointmentResponse = require('./models/appointment-response')
 
 const createAppointment = async (req, res, next) => {
-  const { name, date, handledBy, locationId, conclusion, status } = req.body
+  const { name, date, handledBy, locationId, conclusion, status, estimatedDurationMinutes } = req.body
   const appointment = new Appointment({
-    id: uuidv4(),
     name,
     date,
     handledBy,
     locationId,
     conclusion,
-    status
+    status,
+    estimatedDurationMinutes
   })
 
   let location
