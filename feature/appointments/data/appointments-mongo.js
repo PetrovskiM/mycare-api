@@ -38,15 +38,7 @@ const createAppointment = async (req, res, next) => {
 
   try {
     await appointment.save()
-    return new AppointmentResponse(
-      appointment.name,
-      appointment.date,
-      appointment.handledBy,
-      appointment.estimatedDurationMinutes,
-      appointment.conclusion,
-      appointment.status,
-      location
-    )
+    return AppointmentResponse.create(appointment, location)
   } catch (err) {
     const error = new HttpError(
             `Creating appointment failed, please try again. Error: ${err}`,
@@ -58,7 +50,19 @@ const createAppointment = async (req, res, next) => {
 
 const getAppointments = async (req, res, next) => {
   try {
-    return await Appointment.find().exec()
+    const appointments = await Appointment.find().exec()
+    const locationIds = appointments.map((appointment) => appointment.locationId)
+    const locations = await Location.find().where('_id').in(locationIds)
+    const appointmentResponses = []
+    for (const appointment of appointments) {
+      for (const location of locations) {
+        if (appointment.locationId.toString() === location.id) {
+          appointmentResponses.push(AppointmentResponse.create(appointment, location))
+          break
+        }
+      }
+    }
+    return appointmentResponses
   } catch (err) {
     const error = new HttpError(
             `Could not fetch appointments, please try again. Error: ${err}`,
@@ -71,7 +75,9 @@ const getAppointments = async (req, res, next) => {
 const getAppointmentById = async (req, res, next) => {
   const appointmentId = req.params.id
   try {
-    return await Appointment.findById(appointmentId)
+    const appointment = await Appointment.findById(appointmentId)
+    const location = await Location.findById(appointment.locationId)
+    return AppointmentResponse.create(appointment, location)
   } catch (err) {
     const error = new HttpError(
             `Could not fetch appointment for id: ${appointmentId}, please try again. Error: ${err}`,

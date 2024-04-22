@@ -8,6 +8,18 @@ class AppointmentResponse {
     this.status = conclusion
     this.location = location
   }
+
+  static create (appointment, location) {
+    return new AppointmentResponse(
+      appointment.name,
+      appointment.date,
+      appointment.handledBy,
+      appointment.estimatedDurationMinutes,
+      appointment.conclusion,
+      appointment.status,
+      location
+    )
+  }
 }
 
 module.exports = AppointmentResponse
