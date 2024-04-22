@@ -1,24 +1,55 @@
 const uuidv4 = require('uuid').v4
 
-const Appointment = require('../data/models/appointment')
+const Appointment = require('./models/appointment-schema')
 const HttpError = require('../../../core/common/http-error')
+const { Location } = require('../../location/data/model/location-schema')
+const AppointmentResponse = require('./models/appointment-response')
 
 const createAppointment = async (req, res, next) => {
-  const { name, date, handledBy, location, conclusion, status } = req.body
+  const { name, date, handledBy, locationId, conclusion, status } = req.body
   const appointment = new Appointment({
     id: uuidv4(),
     name,
     date,
     handledBy,
-    location,
+    locationId,
     conclusion,
     status
   })
+
+  let location
   try {
-    return await appointment.save()
+    location = await Location.findById(locationId)
   } catch (err) {
     const error = new HttpError(
-            `Creating place failed, please try again. Error: ${err}`,
+      'Creating an Appointment failed, please try again.',
+      500
+    )
+    return next(error)
+  }
+
+  if (!location) {
+    const error = new HttpError(
+          `Creating an Appointment failed, no location found for ${locationId}`,
+          404
+    )
+    return next(error)
+  }
+
+  try {
+    await appointment.save()
+    return new AppointmentResponse(
+      appointment.name,
+      appointment.date,
+      appointment.handledBy,
+      appointment.estimatedDurationMinutes,
+      appointment.conclusion,
+      appointment.status,
+      location
+    )
+  } catch (err) {
+    const error = new HttpError(
+            `Creating appointment failed, please try again. Error: ${err}`,
             500
     )
     return next(error)

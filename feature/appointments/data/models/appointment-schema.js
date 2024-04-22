@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 
-const { LocationSchema } = require('./location')
 const AppointmentStatus = require('./appointment-status')
 
 const appointmentSchema = new mongoose.Schema({
@@ -8,9 +7,9 @@ const appointmentSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   handledBy: { type: String, required: true },
   estimatedDurationMinutes: { type: Number, required: false },
-  location: { type: LocationSchema, required: false },
   conclusion: { type: String, required: false },
-  status: { type: String, enum: AppointmentStatus, required: true }
+  status: { type: String, enum: AppointmentStatus, required: true },
+  locationId: { type: mongoose.Types.ObjectId, required: true, ref: 'Location' }
 },
 {
   toJSON: {

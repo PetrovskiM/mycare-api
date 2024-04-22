@@ -25,7 +25,7 @@ const getAppointments = async (req, res, next) => {
 }
 
 const createAppointment = async (req, res, next) => {
-  validateCreateUpdatePlace(req, next)
+  validateCreateUpdateAppointment(req, next)
   const appointment = await mongo.createAppointment(req, res, next)
 
   if (!appointment) {
@@ -36,7 +36,7 @@ const createAppointment = async (req, res, next) => {
 }
 
 const updateAppointment = async (req, res, next) => {
-  validateCreateUpdatePlace(req, next)
+  validateCreateUpdateAppointment(req, next)
   const updatedAppointment = await mongo.updateAppointment(req, res, next)
 
   if (!updatedAppointment) {
@@ -47,7 +47,7 @@ const updateAppointment = async (req, res, next) => {
   }
 }
 
-const validateCreateUpdatePlace = (req, next) => {
+const validateCreateUpdateAppointment = (req, next) => {
   const errors = validationResult(req)
 
   if (!errors.isEmpty()) {

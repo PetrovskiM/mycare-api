@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 
 var indexRouter = require('./routes/index');
 const appointmentsRouter = require('./feature/appointments/routes/appointments-routes');
+const locationRouter = require('./feature/location/routes/location-routes');
 const HttpError = require('./core/common/http-error')
 
 var app = express();
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use(bodyParser.json());
 app.use('/api/appointments', appointmentsRouter);
+app.use('/api/location', locationRouter);
 
 app.use((req, res, next) => {
     throw new HttpError('Could not find this route', 404);

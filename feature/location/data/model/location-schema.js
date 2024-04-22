@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const { AddressSchema } = require('./address')
+const { AddressSchema } = require('./address-schema')
 
 const locationSchema = new mongoose.Schema({
   name: { type: String, required: true },
