@@ -27,7 +27,7 @@ const createLocation = async (req, res, next) => {
 
 const getLocations = async (req, res, next) => {
   try {
-    return await Location.find().exec()
+    return await Location.find().populate('address')
   } catch (err) {
     const error = new HttpError(
             `Could not fetch appointments, please try again. Error: ${err}`,

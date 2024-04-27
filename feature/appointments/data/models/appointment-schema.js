@@ -11,7 +11,7 @@ const appointmentSchema = new mongoose.Schema({
   estimatedDurationMinutes: { type: Number, required: false },
   conclusion: { type: String, required: false },
   status: { type: String, enum: AppointmentStatus, required: true },
-  locationId: { type: String, required: true, ref: 'Location' }
+  location: { type: String, required: true, ref: 'Location' }
 },
 {
   toJSON: {

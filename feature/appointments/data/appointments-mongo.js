@@ -2,22 +2,23 @@ const Appointment = require('./models/appointment-schema')
 const HttpError = require('../../../core/common/http-error')
 const { Location } = require('../../location/data/model/location-schema')
 const AppointmentResponse = require('./models/appointment-response')
+const AppointmentStatus = require('../data/models/appointment-status')
 
 const createAppointment = async (req, res, next) => {
-  const { name, date, handledBy, locationId, conclusion, status, estimatedDurationMinutes } = req.body
+  const { name, date, handledBy, location, conclusion, status, estimatedDurationMinutes } = req.body
   const appointment = new Appointment({
     name,
     date,
     handledBy,
-    locationId,
+    location,
     conclusion,
     status,
     estimatedDurationMinutes
   })
 
-  let location
+  let dbLocation
   try {
-    location = await Location.findById(locationId)
+    dbLocation = await Location.findById(location)
   } catch (err) {
     const error = new HttpError(
       'Creating an Appointment failed, please try again.',
@@ -26,17 +27,17 @@ const createAppointment = async (req, res, next) => {
     return next(error)
   }
 
-  if (!location) {
+  if (!dbLocation) {
     const error = new HttpError(
-          `Creating an Appointment failed, no location found for ${locationId}`,
-          404
+            `Creating an Appointment failed, no location found for ${location}`,
+            404
     )
     return next(error)
   }
 
   try {
     await appointment.save()
-    return AppointmentResponse.create(appointment, location)
+    return AppointmentResponse.create(appointment, dbLocation)
   } catch (err) {
     const error = new HttpError(
             `Creating appointment failed, please try again. Error: ${err}`,
@@ -48,19 +49,25 @@ const createAppointment = async (req, res, next) => {
 
 const getAppointments = async (req, res, next) => {
   try {
-    const appointments = await Appointment.find().exec()
-    const locationIds = appointments.map((appointment) => appointment.locationId)
-    const locations = await Location.find().where('_id').in(locationIds)
-    const appointmentResponses = []
-    for (const appointment of appointments) {
-      for (const location of locations) {
-        if (appointment.locationId.toString() === location.id) {
-          appointmentResponses.push(AppointmentResponse.create(appointment, location))
-          break
-        }
+    let appointments
+    if (Object.keys(req.query).length === 0) {
+      appointments = Appointment.find().populate('location')
+    } else {
+      appointments = Appointment.aggregate()
+        .lookup({
+          from: 'locations',
+          localField: 'location',
+          foreignField: '_id',
+          as: 'location'
+        })
+        .unwind({ path: '$location' })
+        .match({ 'location.name': { $regex: req.query.location || '', $options: 'i' } })
+        .match({ name: { $regex: req.query.name || '', $options: 'i' } })
+      if (req.query.status && Object.prototype.hasOwnProperty.call(AppointmentStatus, req.query.status)) {
+        appointments.match({ status: AppointmentStatus[req.query.status] })
       }
     }
-    return appointmentResponses
+    return await appointments
   } catch (err) {
     const error = new HttpError(
             `Could not fetch appointments, please try again. Error: ${err}`,

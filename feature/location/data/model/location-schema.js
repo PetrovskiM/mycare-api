@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
 const uuidv4 = require('uuid').v4
 
-const { AddressSchema } = require('./address-schema')
-
 const locationSchema = new mongoose.Schema({
   _id: { type: String, default: uuidv4 },
   name: { type: String, required: true },
-  address: { type: AddressSchema, required: true },
+  address: {
+    name: { type: String, required: true },
+    additionalDirections: { type: String, required: false }
+  },
   phone: { type: String, required: false },
   imageUrl: { type: String, required: false }
 },
